@@ -1,0 +1,190 @@
+public String tipotupla_aux(String argumento){
+	String respuesta = "(";
+	String argumentos = argumento.substring(1,argumento.length()-1);
+	StringTokenizer tokens2 = new StringTokenizer (argumentos,",");
+	int max =tokens2.countTokens();
+	if(argumentos.equals("")){
+		respuesta="()";
+	}
+	else{
+		for(int i=1;i<max;i++){
+			String arg = tokens2.nextToken();
+			if(esnumero(arg))
+				respuesta+="int*";
+			else if(esbool(arg))
+				respuesta+="boolean*";
+			else if(esTupla(arg))
+				respuesta+=tipotupla_aux(arg)+"*";
+			else if(esLista(arg))
+				respuesta+="list*";
+		}
+		try{
+			String arg = tokens2.nextToken();
+			if(esnumero(arg))
+				respuesta+="int)";
+			else if(esbool(arg))
+				respuesta+="boolean)";
+			//		else if(esTupla(arg))
+			//			respuesta+=tipotupla_aux(arg)+")";
+			else if(esLista(arg))
+				respuesta+="list)";
+		}
+		catch(Exception e){
+			respuesta+=")";
+		}
+	}
+	return respuesta;	
+	
+}
+	
+public String tipotupla(String expresion)
+{String respuesta ="(";
+StringTokenizer tokens = new StringTokenizer (expresion, ";=");
+String argumentos=expresion;
+String cadena="";
+if(tokens.countTokens()>1){
+	tokens.nextToken();
+	cadena = tokens.nextToken();
+	argumentos = cadena.substring(2,cadena.length()-1);
+}
+else{
+	cadena = tokens.nextToken();
+	argumentos = cadena.substring(1,cadena.length()-1);
+}
+//tokens.nextToken();
+//String cadena = tokens.nextToken();
+//String argumentos = cadena.substring(2,cadena.length()-1);
+int parentesis = 0;
+if(argumentos.equals("")){
+	respuesta="()";
+}
+else{
+	while(argumentos.charAt(0)=='('&&argumentos.charAt(1)=='('){
+		parentesis++;
+		argumentos = argumentos.substring(1,argumentos.length()-1);
+	}
+	StringTokenizer tokens2 = new StringTokenizer (argumentos,",");
+	int max = contar_argumentos(argumentos);
+	String argumento = tokens2.nextToken();
+	if(argumento.charAt(0)=='('){
+		String argaux = argumento;
+		try{
+		argumento = tokens2.nextToken();
+		while(argumento.charAt(argumento.length()-1)!=')'){
+			argaux +=","+argumento;
+			argumento = tokens2.nextToken();
+		}
+		argaux += ","+argumento;
+		respuesta+=tipotupla_aux(argaux);
+		}
+		catch(Exception xz){
+			argaux += "";
+			respuesta+=tipotupla_aux(argaux);
+		}
+	}
+	else{
+		if(esnumero(argumento))
+			respuesta+="int";
+		else if(esbool(argumento))
+			respuesta+="boolean";
+		else if(esLista(argumento))
+			respuesta+="list";
+	}
+	for(int i=2;i<=max;i++){
+		argumento = tokens2.nextToken();
+		if(argumento.charAt(0)=='('){
+			String argaux = argumento;
+			if(argumento.charAt(argumento.length()-1)==')'){
+				argaux +="";
+				respuesta+="*"+tipotupla_aux(argaux);
+			}
+			else{
+				try{
+					argumento = tokens2.nextToken();
+					while(argumento.charAt(argumento.length()-1)!=')'){
+						argumento = tokens2.nextToken();
+						argaux +=","+argumento;
+						argumento = tokens2.nextToken();
+					}
+					argaux += ","+argumento;
+					respuesta+=tipotupla_aux(argaux);
+				}
+				catch(Exception lol){
+					argaux += "";
+					respuesta+=tipotupla_aux(argaux);
+				}
+			}
+		}
+		else{
+			if(esnumero(argumento))
+				respuesta+="*int";
+			else if(esbool(argumento))
+				respuesta+="*boolean";
+			else if(esLista(argumento))
+				respuesta+="*list";
+		}
+	}
+	try{
+		argumento = tokens2.nextToken();
+		if(argumento.charAt(0)=='('){
+			String argaux = argumento;
+			try{
+				argumento = tokens2.nextToken();
+				while(argumento.charAt(argumento.length()-1)!=')'){
+					argaux +=","+argumento;
+					argumento = tokens2.nextToken();
+				}
+				argaux += ","+argumento;
+				respuesta+="*"+tipotupla_aux(argaux)+")";
+			}
+			catch(Exception z){
+				argaux+="";
+				respuesta+="*"+tipotupla_aux(argaux)+")";
+			}
+			
+		}
+		else{
+			if(esnumero(argumento))
+				respuesta+="*int)";
+			else if(esbool(argumento))
+				respuesta+="*boolean)";
+			//		else if(esTupla(argumento))
+			//			respuesta+=tipotupla_aux(argumento)+")";
+			else if(esLista(argumento))
+				respuesta+="*list)";
+		}
+	}
+	catch(Exception e){
+		respuesta+=")";
+	}
+	for(int x =1;x<=parentesis;x++){
+		respuesta = "("+respuesta+")";
+	}
+}
+return respuesta;		
+}
+public int contar_argumentos(String arg){
+	int resultado = 0;
+	StringTokenizer tokens = new StringTokenizer(arg,",;");
+	while(tokens.hasMoreTokens()){
+		String argumento = tokens.nextToken();
+		if(argumento.charAt(0)=='('){
+			//String argaux = argumento;
+			//argumento = tokens.nextToken();
+			while(argumento.charAt(argumento.length()-1)!=')'){
+				argumento = tokens.nextToken();
+			}
+			resultado++;
+			if(tokens.hasMoreTokens())
+				argumento = tokens.nextToken();
+			else;
+		}
+		else{
+			resultado++;
+			if(tokens.hasMoreTokens())
+				argumento=tokens.nextToken();
+			else;
+		}
+	}
+	return resultado;
+}
